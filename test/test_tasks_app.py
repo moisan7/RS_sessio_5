@@ -400,3 +400,64 @@ def test_gs_16_compatibilitat_amb_el_fitxer_de_la_v1(
     assert resultat.stdout.splitlines() == [
         "[1] Pràctica 1 (RS) - estat: pendent"
     ]
+
+
+def test_gs_18_resum_d_un_registre_amb_tasques_de_tots_els_tipus(
+    executar, fitxer_dades, sembrar_tasques
+):
+    """GS-18 (RF-15): recomptes de pendents, completades, caducades..."""
+    sembrar_tasques(
+        [
+            _tasca(1, "Tasca A"),
+            _tasca(2, "Tasca B", data_limit=_data_relativa(-1)),
+            _tasca(3, "Tasca C", "SO", data_limit=_data_relativa(2)),
+            _tasca(4, "Tasca D", "SO", data_limit=_data_relativa(40)),
+            {
+                **_tasca(5, "Tasca E", data_limit=_data_relativa(-20)),
+                "estat": "completada",
+            },
+        ]
+    )
+    abans = fitxer_dades.read_bytes()
+
+    resultat = executar("summary")
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        "Total: 5",
+        "Pendents: 4",
+        "Completades: 1",
+        "Caducades: 1",
+        "Urgents: 1",
+    ]
+    assert fitxer_dades.read_bytes() == abans
+
+
+def test_gs_19_resum_d_un_registre_buit(executar):
+    """GS-19 (RF-16): sense tasques, tots els recomptes són 0."""
+    resultat = executar("summary")
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        "Total: 0",
+        "Pendents: 0",
+        "Completades: 0",
+        "Caducades: 0",
+        "Urgents: 0",
+    ]
+
+
+def test_rf_15_el_resum_reflecteix_els_canvis_fets_amb_complete(
+    executar, sembrar_tasques
+):
+    """RF-15: completar una tasca mou el recompte de pendents a completades."""
+    sembrar_tasques([_tasca(1), _tasca(2, "Examen", "SO")])
+
+    executar("complete", "--id", "1")
+    resultat = executar("summary")
+
+    assert resultat.stdout.splitlines()[:3] == [
+        "Total: 2",
+        "Pendents: 1",
+        "Completades: 1",
+    ]

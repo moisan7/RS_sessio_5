@@ -4,7 +4,7 @@ import argparse
 import sys
 from datetime import date
 
-from logica import calcular_indicador, cercar_per_id, validar_data
+from logica import calcular_indicador, cercar_per_id, resum, validar_data
 from models import ESTAT_COMPLETADA, ESTAT_PENDENT, ErrorTasques, Tasca
 from persistencia import carregar_tasques, desar_tasques
 
@@ -49,6 +49,7 @@ def crear_parser():
     )
 
     subparsers.add_parser("list", help="mostra les tasques registrades")
+    subparsers.add_parser("summary", help="mostra un resum del registre")
     return parser
 
 
@@ -116,6 +117,13 @@ def comandament_list(args):
         print(formatar_tasca(tasca, avui))
 
 
+def comandament_summary(args):
+    """Mostra el resum del registre de tasques (RF-15, RF-16)."""
+    tasques = carregar_tasques()
+    for nom, quantitat in resum(tasques, date.today()).items():
+        print(f"{nom}: {quantitat}")
+
+
 def formatar_tasca(tasca, avui):
     """Retorna la línia de llistat d'una tasca (RF-12, RF-13, RF-14)."""
     linia = (
@@ -135,6 +143,7 @@ COMANDAMENTS = {
     "edit": comandament_edit,
     "complete": comandament_complete,
     "list": comandament_list,
+    "summary": comandament_summary,
 }
 
 
