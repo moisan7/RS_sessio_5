@@ -27,7 +27,7 @@ Objectiu: Permetre registrar una data límit, corregir tasques, completar-les i 
 - [x] Tasca 2.3: Afegir `data_limit` (opcional) al model `Tasca` mantenint la compatibilitat amb el JSON de la v1.0, amb test unitari. — Req: RNF-01, GS-16 — Depèn de: 2.1
 - [x] Tasca 2.4: Gestió d'errors: excepció `ErrorTasques`, sortida a `stderr` amb codi 1 a `main()` i JSON invàlid sense sobreescriure, amb tests. — Req: RNF-03, RNF-05, GS-17 — Depèn de: 2.3
 - [x] Tasca 2.5: Implementar `validar_data` a `src/logica.py`, amb tests unitaris. — Req: RF-06 — Depèn de: 2.4
-- [ ] Tasca 2.6: Afegir l'opció `--due` al comandament `add`, amb tests. — Req: RF-05, RF-06, GS-04, GS-05 — Depèn de: 2.5
+- [x] Tasca 2.6: Afegir l'opció `--due` al comandament `add`, amb tests. — Req: RF-05, RF-06, GS-04, GS-05 — Depèn de: 2.5
 - [ ] Tasca 2.7: Implementar `cercar_per_id` a `src/logica.py` amb l'error d'ID inexistent, amb tests unitaris. — Req: RF-08 — Depèn de: 2.4
 - [ ] Tasca 2.8: Implementar el comandament `edit`, amb tests. — Req: RF-07, RF-08, RF-09, GS-06, GS-07, GS-08, GS-09 — Depèn de: 2.5, 2.7
 - [ ] Tasca 2.9: Implementar el comandament `complete`, amb tests. — Req: RF-10, RF-11, RF-08, GS-08, GS-10, GS-11 — Depèn de: 2.7

@@ -3,6 +3,7 @@
 import argparse
 import sys
 
+from logica import validar_data
 from models import ErrorTasques, Tasca
 from persistencia import carregar_tasques, desar_tasques
 
@@ -20,16 +21,24 @@ def crear_parser():
     parser_add.add_argument(
         "--subject", required=True, help="assignatura de la tasca"
     )
+    parser_add.add_argument(
+        "--due", help="data límit de la tasca (format YYYY-MM-DD)"
+    )
 
     subparsers.add_parser("list", help="mostra les tasques registrades")
     return parser
 
 
 def comandament_add(args):
-    """Crea una nova tasca amb estat 'pendent' (RF-03)."""
+    """Crea una nova tasca amb estat 'pendent' (RF-03, RF-05, RF-06)."""
     tasques = carregar_tasques()
+    data_limit = None
+    if args.due is not None:
+        data_limit = validar_data(args.due).isoformat()
     nou_id = max((tasca.id for tasca in tasques), default=0) + 1
-    tasques.append(Tasca(nou_id, args.title, args.subject))
+    tasques.append(
+        Tasca(nou_id, args.title, args.subject, data_limit=data_limit)
+    )
     desar_tasques(tasques)
     print(f"Tasca [ID: {nou_id}] creada amb èxit")
 

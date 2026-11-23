@@ -84,3 +84,43 @@ def test_gs_17_fitxer_de_dades_amb_contingut_invalid(
             in resultat.stderr
         )
         assert fitxer_dades.read_text(encoding="utf-8") == contingut
+
+
+def test_gs_04_creacio_d_una_tasca_amb_data_limit(executar, fitxer_dades):
+    """GS-04 (RF-05): afegir una tasca amb data límit."""
+    resultat = executar(
+        "add", "--title", "Pràctica 2", "--subject", "RS",
+        "--due", "2026-12-15",
+    )
+
+    assert resultat.returncode == 0
+    assert "Tasca [ID: 1] creada amb èxit" in resultat.stdout
+    tasques = json.loads(fitxer_dades.read_text(encoding="utf-8"))
+    assert tasques == [
+        {
+            "id": 1,
+            "titol": "Pràctica 2",
+            "assignatura": "RS",
+            "estat": "pendent",
+            "data_limit": "2026-12-15",
+        }
+    ]
+
+
+@pytest.mark.parametrize(
+    "data",
+    ["15/12/2026", "2026-13-01", "2026-02-30", "demà"],
+    ids=["format", "mes", "dia", "text"],
+)
+def test_gs_05_rebuig_d_una_data_limit_invalida(
+    executar, fitxer_dades, data
+):
+    """GS-05 (RF-06, RNF-03): una data invàlida es rebutja sense desar."""
+    resultat = executar(
+        "add", "--title", "Pràctica 2", "--subject", "RS", "--due", data
+    )
+
+    assert resultat.returncode == 1
+    assert resultat.stdout == ""
+    assert "Error: format de data invàlid (YYYY-MM-DD)." in resultat.stderr
+    assert json.loads(fitxer_dades.read_text(encoding="utf-8")) == []
