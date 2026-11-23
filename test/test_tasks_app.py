@@ -1,6 +1,7 @@
-"""Tests d'integració de Tasks_app: escenaris GS-01, GS-02 i GS-03."""
+"""Tests d'integració de Tasks_app: escenaris Gherkin de la v1.0 i v2.0."""
 
 import json
+from datetime import date, timedelta
 
 import pytest
 
@@ -293,4 +294,57 @@ def test_rf_10_complete_conserva_la_data_limit(
 
     assert _llegir(fitxer_dades) == [
         {**_tasca(), "estat": "completada", "data_limit": "2026-12-15"}
+    ]
+
+
+def _data_relativa(dies):
+    """Data ISO a `dies` dies de la data actual (negatiu: passat)."""
+    return (date.today() + timedelta(days=dies)).isoformat()
+
+
+def test_gs_12_llistat_d_una_tasca_amb_data_limit_llunyana(
+    executar, sembrar_tasques
+):
+    """GS-12 (RF-12): es mostra la data límit i cap indicador."""
+    limit = _data_relativa(30)
+    sembrar_tasques([_tasca(1, "Pràctica 2", "RS", data_limit=limit)])
+
+    resultat = executar("list")
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        f"[1] Pràctica 2 (RS) - estat: pendent - límit: {limit}"
+    ]
+
+
+def test_gs_13_llistat_d_una_tasca_pendent_caducada(
+    executar, sembrar_tasques
+):
+    """GS-13 (RF-13): una tasca pendent vençuda ahir és CADUCADA."""
+    limit = _data_relativa(-1)
+    sembrar_tasques([_tasca(1, "Examen parcial", "SO", data_limit=limit)])
+
+    resultat = executar("list")
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        f"[1] Examen parcial (SO) - estat: pendent - límit: {limit}"
+        " [CADUCADA]"
+    ]
+
+
+def test_rf_12_el_llistat_barreja_tasques_amb_i_sense_data_limit(
+    executar, sembrar_tasques
+):
+    """RF-12: les tasques sense data conserven el format de la v1.0."""
+    limit = _data_relativa(2)
+    sembrar_tasques(
+        [_tasca(1), _tasca(2, "Examen", "SO", data_limit=limit)]
+    )
+
+    resultat = executar("list")
+
+    assert resultat.stdout.splitlines() == [
+        "[1] Pràctica 1 (RS) - estat: pendent",
+        f"[2] Examen (SO) - estat: pendent - límit: {limit} [URGENT]",
     ]

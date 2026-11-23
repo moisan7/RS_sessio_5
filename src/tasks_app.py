@@ -1,9 +1,10 @@
-"""Tasks_app: eina CLI per gestionar tasques acadèmiques (RF-03, RF-04)."""
+"""Tasks_app: eina CLI per gestionar tasques acadèmiques (RF-03..RF-14)."""
 
 import argparse
 import sys
+from datetime import date
 
-from logica import cercar_per_id, validar_data
+from logica import calcular_indicador, cercar_per_id, validar_data
 from models import ESTAT_COMPLETADA, ESTAT_PENDENT, ErrorTasques, Tasca
 from persistencia import carregar_tasques, desar_tasques
 
@@ -105,16 +106,28 @@ def comandament_complete(args):
 
 
 def comandament_list(args):
-    """Mostra totes les tasques registrades (RF-04)."""
+    """Mostra les tasques registrades (RF-04, RF-12, RF-13, RF-14)."""
     tasques = carregar_tasques()
     if not tasques:
         print("Registre de tasques buit.")
         return
+    avui = date.today()
     for tasca in tasques:
-        print(
-            f"[{tasca.id}] {tasca.titol} ({tasca.assignatura})"
-            f" - estat: {tasca.estat}"
-        )
+        print(formatar_tasca(tasca, avui))
+
+
+def formatar_tasca(tasca, avui):
+    """Retorna la línia de llistat d'una tasca (RF-12, RF-13, RF-14)."""
+    linia = (
+        f"[{tasca.id}] {tasca.titol} ({tasca.assignatura})"
+        f" - estat: {tasca.estat}"
+    )
+    if tasca.data_limit is not None:
+        linia += f" - límit: {tasca.data_limit}"
+    indicador = calcular_indicador(tasca, avui)
+    if indicador is not None:
+        linia += f" [{indicador}]"
+    return linia
 
 
 COMANDAMENTS = {
