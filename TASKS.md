@@ -31,6 +31,6 @@ Objectiu: Permetre registrar una data límit, corregir tasques, completar-les i 
 - [x] Tasca 2.7: Implementar `cercar_per_id` a `src/logica.py` amb l'error d'ID inexistent, amb tests unitaris. — Req: RF-08 — Depèn de: 2.4
 - [x] Tasca 2.8: Implementar el comandament `edit`, amb tests. — Req: RF-07, RF-08, RF-09, GS-06, GS-07, GS-08, GS-09 — Depèn de: 2.5, 2.7
 - [x] Tasca 2.9: Implementar el comandament `complete`, amb tests. — Req: RF-10, RF-11, RF-08, GS-08, GS-10, GS-11 — Depèn de: 2.7
-- [ ] Tasca 2.10: Implementar `calcular_indicador(tasca, avui)` a `src/logica.py`, amb tests unitaris de límits. — Req: RF-13, RF-14, GS-14, GS-15 — Depèn de: 2.3
+- [x] Tasca 2.10: Implementar `calcular_indicador(tasca, avui)` a `src/logica.py`, amb tests unitaris de límits. — Req: RF-13, RF-14, GS-14, GS-15 — Depèn de: 2.3
 - [ ] Tasca 2.11: Mostrar la data límit i els indicadors `[CADUCADA]` i `[URGENT]` al comandament `list`, amb tests. — Req: RF-12, RF-13, RF-14, GS-12, GS-13 — Depèn de: 2.10
 - [ ] Tasca 2.12: Completar i revisar els tests d'integració dels escenaris GS-04..GS-17 i executar la regressió (`python3 -m pytest test`). — Req: GS-01..GS-17 — Depèn de: 2.6, 2.8, 2.9, 2.11

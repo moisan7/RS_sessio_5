@@ -3,10 +3,13 @@
 import re
 from datetime import date
 
-from models import ErrorTasques
+from models import ESTAT_PENDENT, ErrorTasques
 
 MISSATGE_DATA_INVALIDA = "Error: format de data invàlid (YYYY-MM-DD)."
 _PATRO_DATA = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
+INDICADOR_CADUCADA = "CADUCADA"
+INDICADOR_URGENT = "URGENT"
+DIES_URGENT = 7
 
 
 def validar_data(text):
@@ -33,3 +36,21 @@ def cercar_per_id(tasques, id_tasca):
         if tasca.id == id_tasca:
             return tasca
     raise ErrorTasques(f"Error: no existeix cap tasca amb ID {id_tasca}.")
+
+
+def calcular_indicador(tasca, avui):
+    """Retorna l'indicador d'una tasca segons la data actual (RF-13, RF-14).
+
+    - `CADUCADA`: tasca pendent amb data límit anterior a `avui`.
+    - `URGENT`: tasca pendent amb entre 0 i 6 dies fins a la data límit.
+    - `None`: en qualsevol altre cas (tasca completada, sense data límit
+      o amb la data límit a 7 dies o més).
+    """
+    if tasca.estat != ESTAT_PENDENT or tasca.data_limit is None:
+        return None
+    dies_restants = (date.fromisoformat(tasca.data_limit) - avui).days
+    if dies_restants < 0:
+        return INDICADOR_CADUCADA
+    if dies_restants < DIES_URGENT:
+        return INDICADOR_URGENT
+    return None

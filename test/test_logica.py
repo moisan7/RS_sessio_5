@@ -1,10 +1,10 @@
-"""Tests unitaris de la lògica de negoci (RF-06, RF-08)."""
+"""Tests unitaris de la lògica de negoci (RF-06, RF-08, RF-13, RF-14)."""
 
 from datetime import date
 
 import pytest
 
-from logica import cercar_per_id, validar_data
+from logica import calcular_indicador, cercar_per_id, validar_data
 from models import ErrorTasques, Tasca
 
 MISSATGE = "Error: format de data invàlid (YYYY-MM-DD)."
@@ -71,3 +71,56 @@ def test_rf_08_llista_buida_llanca_error():
     """RF-08: en un registre buit cap ID existeix."""
     with pytest.raises(ErrorTasques):
         cercar_per_id([], 1)
+
+
+AVUI = date(2026, 11, 23)
+
+
+def _pendent(data_limit):
+    return Tasca(1, "Pràctica 1", "RS", "pendent", data_limit)
+
+
+@pytest.mark.parametrize(
+    "data_limit, esperat",
+    [
+        ("2026-01-01", "CADUCADA"),
+        ("2026-11-21", "CADUCADA"),
+        ("2026-11-22", "CADUCADA"),
+        ("2026-11-23", "URGENT"),
+        ("2026-11-24", "URGENT"),
+        ("2026-11-29", "URGENT"),
+        ("2026-11-30", None),
+        ("2026-12-15", None),
+        ("2027-11-23", None),
+    ],
+    ids=[
+        "fa_mesos", "fa_2_dies", "ahir", "avui", "dema", "d_aqui_6_dies",
+        "d_aqui_7_dies", "d_aqui_3_setmanes", "d_aqui_1_any",
+    ],
+)
+def test_gs_13_gs_14_indicador_d_una_tasca_pendent(data_limit, esperat):
+    """GS-13, GS-14 (RF-13, RF-14): límits de caducada i urgent."""
+    assert calcular_indicador(_pendent(data_limit), AVUI) == esperat
+
+
+@pytest.mark.parametrize(
+    "data_limit", ["2026-11-01", "2026-11-23", "2026-11-25"]
+)
+def test_gs_15_una_tasca_completada_no_es_marca_mai(data_limit):
+    """GS-15 (RF-13, RF-14): completada, sense indicador."""
+    tasca = Tasca(1, "Pràctica 1", "RS", "completada", data_limit)
+
+    assert calcular_indicador(tasca, AVUI) is None
+
+
+def test_rnf_01_una_tasca_sense_data_limit_no_es_marca_mai():
+    """RNF-01: sense data límit no hi ha indicador."""
+    assert calcular_indicador(_pendent(None), AVUI) is None
+
+
+def test_rf_14_el_canvi_de_dia_canvia_l_indicador():
+    """RF-14: la mateixa tasca passa de urgent a caducada l'endemà."""
+    tasca = _pendent("2026-11-23")
+
+    assert calcular_indicador(tasca, date(2026, 11, 23)) == "URGENT"
+    assert calcular_indicador(tasca, date(2026, 11, 24)) == "CADUCADA"
