@@ -348,3 +348,55 @@ def test_rf_12_el_llistat_barreja_tasques_amb_i_sense_data_limit(
         "[1] Pràctica 1 (RS) - estat: pendent",
         f"[2] Examen (SO) - estat: pendent - límit: {limit} [URGENT]",
     ]
+
+
+@pytest.mark.parametrize(
+    "dies, indicador",
+    [(0, " [URGENT]"), (6, " [URGENT]"), (7, "")],
+    ids=["avui", "d_aqui_6_dies", "d_aqui_7_dies"],
+)
+def test_gs_14_indicador_segons_els_dies_que_falten(
+    executar, sembrar_tasques, dies, indicador
+):
+    """GS-14 (RF-14): 0 i 6 dies són URGENT, 7 dies ja no."""
+    limit = _data_relativa(dies)
+    sembrar_tasques([_tasca(data_limit=limit)])
+
+    resultat = executar("list")
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        f"[1] Pràctica 1 (RS) - estat: pendent - límit: {limit}{indicador}"
+    ]
+
+
+@pytest.mark.parametrize(
+    "dies", [-30, -1, 0, 3], ids=["molt_passada", "ahir", "avui", "d_aqui_3"]
+)
+def test_gs_15_una_tasca_completada_no_es_marca_mai(
+    executar, sembrar_tasques, dies
+):
+    """GS-15 (RF-13, RF-14): una tasca completada no té indicador."""
+    limit = _data_relativa(dies)
+    sembrar_tasques([{**_tasca(data_limit=limit), "estat": "completada"}])
+
+    resultat = executar("list")
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        f"[1] Pràctica 1 (RS) - estat: completada - límit: {limit}"
+    ]
+
+
+def test_gs_16_compatibilitat_amb_el_fitxer_de_la_v1(
+    executar, sembrar_tasques
+):
+    """GS-16 (RNF-01): una tasca sense `data_limit` es llista com a la v1."""
+    sembrar_tasques([_tasca()])
+
+    resultat = executar("list")
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        "[1] Pràctica 1 (RS) - estat: pendent"
+    ]
