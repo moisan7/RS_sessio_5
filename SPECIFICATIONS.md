@@ -1,10 +1,11 @@
-# SPECIFICATIONS.md — Sistema Tasks_app (v2.0)
+# SPECIFICATIONS.md — Sistema Tasks_app (v3.0)
 
 ## 0. Historial de versions
 | Versió | Sprint | Canvis incorporats | Estat |
 |--------|--------|--------------------|-------|
 | v1.0 | Inicial | US-01, US-02; RF-01..RF-04; GS-01..GS-03 | completada |
 | v2.0 | Sprint 2 | Afegits US-03..US-06; RF-05..RF-14 (data límit, edició, completat, indicadors); RNF-01..RNF-05; GS-04..GS-17; camp `data_limit` i estat `completada` al model; glossari i matriu de traçabilitat. Els requisits i escenaris de la v1.0 no canvien. | completada |
+| v3.0 | Sprint 3 | Afegits US-07..US-09; RF-15..RF-20 (comandament `summary` i filtres `--subject` i `--keyword` de `list`); GS-18..GS-25; glossari i matriu de traçabilitat ampliats. El model de dades i els requisits i escenaris de les versions anteriors no canvien. | en curs |
 
 ## 1. Visió General
 Tasks_app és una eina CLI lleugera per ajudar als estudiants a gestionar les seves tasques acadèmiques diàries.
@@ -16,6 +17,9 @@ Tasks_app és una eina CLI lleugera per ajudar als estudiants a gestionar les se
 - US-04 [v2.0]: Com a estudiant, vull modificar qualsevol atribut d'una tasca a partir del seu ID per tal de corregir els errors comesos en registrar-la.
 - US-05 [v2.0]: Com a estudiant, vull indicar que una tasca s'ha completat per tal de distingir el que ja he fet del que em queda per fer.
 - US-06 [v2.0]: Com a estudiant, vull que el llistat marqui les tasques caducades i les urgents per tal de prioritzar el meu temps.
+- US-07 [v3.0]: Com a estudiant, vull veure un resum amb la quantitat de tasques per estat per tal de conèixer d'un cop d'ull el meu progrés.
+- US-08 [v3.0]: Com a estudiant, vull llistar només les tasques d'una assignatura per tal de centrar-me en aquella assignatura.
+- US-09 [v3.0]: Com a estudiant, vull llistar només les tasques el títol de les quals conté una paraula clau per tal de trobar ràpidament una tasca concreta.
 
 ## 3. Model de Dades (Mermaid)
 ```mermaid
@@ -62,6 +66,14 @@ stateDiagram-v2
 - RNF-03 [v2.0]: Si es produeix un error, el sistema tasks_app ha d'escriure el missatge d'error per la sortida d'errors, ha de finalitzar amb el codi de sortida 1 i no ha de modificar `data/tasks.json`.
 - RNF-04 [v2.0]: El sistema tasks_app ha de desar `data/tasks.json` en codificació UTF-8 i les dates en format ISO 8601 (YYYY-MM-DD).
 - RNF-05 [v2.0]: Si el fitxer `data/tasks.json` no conté JSON vàlid o el seu contingut no és una llista de tasques amb els camps `id`, `titol` i `assignatura`, el sistema tasks_app ha de mostrar el missatge `Error: el fitxer data/tasks.json no conté JSON vàlid.` sense sobreescriure'l.
+
+### 4.3 Requisits funcionals de la v3.0
+- RF-15 [v3.0]: El sistema tasks_app ha de proveir a l'estudiant la capacitat de visualitzar un resum del registre mitjançant el comandament `summary`, que mostra, en aquest ordre i una per línia, les quantitats `Total`, `Pendents`, `Completades`, `Caducades` i `Urgents` amb el format `<nom>: <quantitat>`.
+- RF-16 [v3.0]: Quan el registre no conté tasques, el sistema tasks_app ha de mostrar, en el comandament `summary`, totes les quantitats amb el valor 0.
+- RF-17 [v3.0]: El sistema tasks_app ha de proveir a l'estudiant la capacitat de llistar només les tasques d'una assignatura mitjançant l'opció `--subject <assignatura>` del comandament `list`, comparant l'assignatura sense distingir majúscules de minúscules i mostrant cada tasca amb el mateix format de línia que el comandament `list` sense filtres.
+- RF-18 [v3.0]: El sistema tasks_app ha de proveir a l'estudiant la capacitat de llistar només les tasques que contenen una paraula clau en el títol mitjançant l'opció `--keyword <paraula>` del comandament `list`, buscant la paraula en qualsevol posició del títol sense distingir majúscules de minúscules i mostrant cada tasca amb el mateix format de línia que el comandament `list` sense filtres.
+- RF-19 [v3.0]: Quan l'estudiant indica alhora les opcions `--subject` i `--keyword` en el comandament `list`, el sistema tasks_app ha de mostrar només les tasques que compleixen les dues condicions.
+- RF-20 [v3.0]: Si el registre conté tasques però cap compleix els filtres del comandament `list`, el sistema tasks_app ha de mostrar el missatge `Cap tasca coincideix amb els filtres.`
 
 ## 5. Criteris d'acceptació i proves (Gherkin scenarios)
 - GS-01 [v1.0]: Creació correcta d'una tasca (verifica RF-01, RF-03)
@@ -198,6 +210,88 @@ stateDiagram-v2
     | {"id": 1}     | JSON vàlid però no és una llista        |
     | [{"id": 1}]   | llista amb una tasca sense titol/assignatura |
 
+### 5.2 Escenaris de la v3.0
+- GS-18 [v3.0]: Resum d'un registre amb tasques de tots els tipus (verifica RF-15)
+  Atès que la data actual és 2026-11-23
+  i el fitxer `data/tasks.json` conté les següents tasques:
+    | id | títol     | assignatura | estat      | data límit |
+    | 1  | Tasca A   | RS          | pendent    | (cap)      |
+    | 2  | Tasca B   | RS          | pendent    | 2026-11-22 |
+    | 3  | Tasca C   | SO          | pendent    | 2026-11-25 |
+    | 4  | Tasca D   | SO          | pendent    | 2026-12-31 |
+    | 5  | Tasca E   | RS          | completada | 2026-11-01 |
+  quan l'estudiant executa `python src/tasks_app.py summary`
+  aleshores el sistema mostra per pantalla:
+    "Total: 5"
+    "Pendents: 4"
+    "Completades: 1"
+    "Caducades: 1"
+    "Urgents: 1"
+
+- GS-19 [v3.0]: Resum d'un registre buit (verifica RF-16)
+  Atès que la base de dades JSON no conté encara tasques
+  quan l'estudiant executa `python src/tasks_app.py summary`
+  aleshores el sistema mostra per pantalla:
+    "Total: 0"
+    "Pendents: 0"
+    "Completades: 0"
+    "Caducades: 0"
+    "Urgents: 0"
+
+- GS-20 [v3.0]: Llistat de les tasques d'una assignatura (verifica RF-17)
+  Atès que el fitxer `data/tasks.json` conté les següents tasques pendents:
+    | id | títol          | assignatura |
+    | 1  | Pràctica 1     | RS          |
+    | 2  | Examen parcial | SO          |
+    | 3  | Informe de lab | rs          |
+  quan l'estudiant executa `python src/tasks_app.py list --subject RS`
+  aleshores el sistema mostra per pantalla:
+    "[1] Pràctica 1 (RS) - estat: pendent"
+    "[3] Informe de lab (rs) - estat: pendent"
+  i no mostra la tasca 2.
+
+- GS-21 [v3.0]: Llistat de les tasques amb una paraula clau en el títol (verifica RF-18)
+  Atès que el fitxer `data/tasks.json` conté les següents tasques pendents:
+    | id | títol              | assignatura |
+    | 1  | Pràctica 1         | RS          |
+    | 2  | Examen parcial     | SO          |
+    | 3  | Memòria pràctica 2 | RS          |
+  quan l'estudiant executa `python src/tasks_app.py list --keyword PRÀCTICA`
+  aleshores el sistema mostra per pantalla:
+    "[1] Pràctica 1 (RS) - estat: pendent"
+    "[3] Memòria pràctica 2 (RS) - estat: pendent"
+  i no mostra la tasca 2.
+
+- GS-22 [v3.0]: Llistat amb assignatura i paraula clau combinades (verifica RF-19)
+  Atès que el fitxer `data/tasks.json` conté les següents tasques pendents:
+    | id | títol      | assignatura |
+    | 1  | Pràctica 1 | RS          |
+    | 2  | Pràctica 1 | SO          |
+    | 3  | Examen     | RS          |
+  quan l'estudiant executa `python src/tasks_app.py list --subject RS --keyword pràctica`
+  aleshores el sistema mostra per pantalla només:
+    "[1] Pràctica 1 (RS) - estat: pendent"
+
+- GS-23 [v3.0]: Cap tasca compleix els filtres (verifica RF-20)
+  Atès que el fitxer `data/tasks.json` conté la tasca 1 'Pràctica 1' (RS), pendent
+  quan l'estudiant executa `python src/tasks_app.py list --subject MAT`
+  aleshores el sistema mostra per pantalla `Cap tasca coincideix amb els filtres.`
+  i el codi de sortida és 0.
+
+- GS-24 [v3.0]: El llistat filtrat conserva la data límit i els indicadors (verifica RF-17, RF-12, RF-13)
+  Atès que la data actual és 2026-11-23
+  i el fitxer `data/tasks.json` conté la tasca 1 'Examen parcial' (SO), pendent, amb data límit 2026-11-22
+  i la tasca 2 'Pràctica 1' (RS), pendent, sense data límit
+  quan l'estudiant executa `python src/tasks_app.py list --subject SO`
+  aleshores el sistema mostra per pantalla només:
+    "[1] Examen parcial (SO) - estat: pendent - límit: 2026-11-22 [CADUCADA]"
+
+- GS-25 [v3.0]: Llistat filtrat d'un registre buit (verifica RF-04, RF-20)
+  Atès que la base de dades JSON no conté encara tasques
+  quan l'estudiant executa `python src/tasks_app.py list --subject RS`
+  aleshores el sistema mostra per pantalla `Registre de tasques buit.`
+  (el missatge `Cap tasca coincideix amb els filtres.` només s'usa quan hi ha tasques registrades).
+
 ## 6. Glossari
 - **Tasca pendent**: tasca amb estat `pendent`.
 - **Tasca completada**: tasca amb estat `completada`.
@@ -206,6 +300,9 @@ stateDiagram-v2
 - **Tasca caducada**: tasca pendent amb data límit anterior a la data actual.
 - **Tasca urgent**: tasca pendent amb data límit entre 0 i 6 dies posteriors a la data actual (inclosos); una tasca amb data límit igual a la data actual és urgent i no caducada.
 - **ID**: enter positiu únic; el d'una tasca nova és el màxim ID existent més 1 (1 si no n'hi ha).
+- **Resum**: recompte de les tasques del registre: total, pendents, completades, caducades i urgents. Les caducades i les urgents són sempre tasques pendents i cap tasca és alhora caducada i urgent, de manera que Total = Pendents + Completades.
+- **Coincidència sense distingir majúscules**: comparació de textos ignorant la diferència entre majúscules i minúscules (`RS` coincideix amb `rs`); els accents sí que són significatius (`pràctica` no coincideix amb `practica`).
+- **Filtre de llistat**: condició de les opcions `--subject` i `--keyword` del comandament `list`; el llistat filtrat conserva l'ordre per ID.
 
 ## 7. Matriu de traçabilitat
 | Història | Requisits | Escenaris | Tasques |
@@ -217,5 +314,8 @@ stateDiagram-v2
 | US-05 | RF-07, RF-08, RF-10, RF-11 | GS-07, GS-08, GS-10, GS-11 | 2.7, 2.9 |
 | US-06 | RF-12, RF-13, RF-14 | GS-12..GS-15 | 2.10, 2.11 |
 | (transversal) | RNF-01..RNF-05 | GS-05, GS-08, GS-09, GS-11, GS-16, GS-17 | 2.2, 2.3, 2.4 |
+| US-07 | RF-15, RF-16 | GS-18, GS-19 | 3.2, 3.3 |
+| US-08 | RF-17, RF-19, RF-20 | GS-20, GS-22, GS-23, GS-24, GS-25 | 3.4, 3.5, 3.6 |
+| US-09 | RF-18, RF-19, RF-20 | GS-21, GS-22, GS-23 | 3.5, 3.6 |
 
-Totes les tasques de la v2.0 es validen finalment a la tasca 2.12.
+Les tasques de la v2.0 es validen finalment a la tasca 2.12 i les de la v3.0 a la tasca 3.7.
