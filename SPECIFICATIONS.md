@@ -5,7 +5,7 @@
 |--------|--------|--------------------|-------|
 | v1.0 | Inicial | US-01, US-02; RF-01..RF-04; GS-01..GS-03 | completada |
 | v2.0 | Sprint 2 | Afegits US-03..US-06; RF-05..RF-14 (data límit, edició, completat, indicadors); RNF-01..RNF-05; GS-04..GS-17; camp `data_limit` i estat `completada` al model; glossari i matriu de traçabilitat. Els requisits i escenaris de la v1.0 no canvien. | completada |
-| v3.0 | Sprint 3 | Afegits US-07..US-09; RF-15..RF-20 (comandament `summary` i filtres `--subject` i `--keyword` de `list`); GS-18..GS-25; glossari i matriu de traçabilitat ampliats. El model de dades i els requisits i escenaris de les versions anteriors no canvien. | en curs |
+| v3.0 | Sprint 3 | Afegits US-07..US-09; RF-15..RF-20 (comandament `summary` i filtres `--subject` i `--keyword` de `list`); GS-18..GS-25; glossari i matriu de traçabilitat ampliats. El model de dades i els requisits i escenaris de les versions anteriors no canvien. | completada |
 
 ## 1. Visió General
 Tasks_app és una eina CLI lleugera per ajudar als estudiants a gestionar les seves tasques acadèmiques diàries.
