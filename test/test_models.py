@@ -4,7 +4,7 @@ from models import Tasca
 
 
 def test_rnf_01_carrega_tasca_de_la_v1_sense_data_limit():
-    """RNF-01: una tasca sense `data_limit` es carrega com a tasca sense data."""
+    """RNF-01: una tasca sense `data_limit` es carrega sense data."""
     dades_v1 = {
         "id": 1,
         "titol": "Pràctica 1",

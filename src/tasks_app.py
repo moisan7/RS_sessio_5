@@ -3,8 +3,8 @@
 import argparse
 import sys
 
-from logica import validar_data
-from models import ErrorTasques, Tasca
+from logica import cercar_per_id, validar_data
+from models import ESTAT_COMPLETADA, ESTAT_PENDENT, ErrorTasques, Tasca
 from persistencia import carregar_tasques, desar_tasques
 
 
@@ -25,6 +25,21 @@ def crear_parser():
         "--due", help="data límit de la tasca (format YYYY-MM-DD)"
     )
 
+    parser_edit = subparsers.add_parser("edit", help="modifica una tasca")
+    parser_edit.add_argument(
+        "--id", type=int, required=True, help="ID de la tasca a modificar"
+    )
+    parser_edit.add_argument("--title", help="nou títol")
+    parser_edit.add_argument("--subject", help="nova assignatura")
+    parser_edit.add_argument(
+        "--due", help="nova data límit (format YYYY-MM-DD)"
+    )
+    parser_edit.add_argument(
+        "--status",
+        choices=[ESTAT_PENDENT, ESTAT_COMPLETADA],
+        help="nou estat",
+    )
+
     subparsers.add_parser("list", help="mostra les tasques registrades")
     return parser
 
@@ -43,6 +58,33 @@ def comandament_add(args):
     print(f"Tasca [ID: {nou_id}] creada amb èxit")
 
 
+def comandament_edit(args):
+    """Modifica atributs d'una tasca a partir del seu ID (RF-07..RF-09).
+
+    Totes les validacions es fan abans de modificar res, de manera que
+    un error no altera mai `data/tasks.json`.
+    """
+    canvis = {
+        "titol": args.title,
+        "assignatura": args.subject,
+        "data_limit": args.due,
+        "estat": args.status,
+    }
+    if all(valor is None for valor in canvis.values()):
+        raise ErrorTasques(
+            "Error: cal indicar almenys un atribut a modificar."
+        )
+    tasques = carregar_tasques()
+    tasca = cercar_per_id(tasques, args.id)
+    if args.due is not None:
+        canvis["data_limit"] = validar_data(args.due).isoformat()
+    for atribut, valor in canvis.items():
+        if valor is not None:
+            setattr(tasca, atribut, valor)
+    desar_tasques(tasques)
+    print(f"Tasca [ID: {tasca.id}] modificada amb èxit")
+
+
 def comandament_list(args):
     """Mostra totes les tasques registrades (RF-04)."""
     tasques = carregar_tasques()
@@ -58,6 +100,7 @@ def comandament_list(args):
 
 COMANDAMENTS = {
     "add": comandament_add,
+    "edit": comandament_edit,
     "list": comandament_list,
 }
 
