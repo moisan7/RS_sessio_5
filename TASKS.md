@@ -42,7 +42,7 @@ Objectiu: Permetre veure un resum del registre i filtrar el llistat per assignat
 ### Tasques d'Execució:
 
 - [x] Tasca 3.1: Actualitzar `SPECIFICATIONS.md` a la v3.0 (US-07..US-09, RF-15..RF-20, GS-18..GS-25, glossari i traçabilitat). — Req: tots els de la v3.0 — Depèn de: 2.12
-- [ ] Tasca 3.2: Implementar `resum(tasques, avui)` a `src/logica.py`, amb tests unitaris. — Req: RF-15, RF-16 — Depèn de: 3.1
+- [x] Tasca 3.2: Implementar `resum(tasques, avui)` a `src/logica.py`, amb tests unitaris. — Req: RF-15, RF-16 — Depèn de: 3.1
 - [ ] Tasca 3.3: Implementar el comandament `summary`, amb tests. — Req: RF-15, RF-16, GS-18, GS-19 — Depèn de: 3.2
 - [ ] Tasca 3.4: Implementar `filtrar_per_assignatura` a `src/logica.py`, amb tests unitaris. — Req: RF-17 — Depèn de: 3.1
 - [ ] Tasca 3.5: Implementar `filtrar_per_paraula` i la combinació de filtres `filtrar_tasques` a `src/logica.py`, amb tests unitaris. — Req: RF-18, RF-19 — Depèn de: 3.4

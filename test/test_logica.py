@@ -1,10 +1,10 @@
-"""Tests unitaris de la lògica de negoci (RF-06, RF-08, RF-13, RF-14)."""
+"""Tests unitaris de la lògica de negoci (RF-06, RF-08, RF-13..RF-16)."""
 
 from datetime import date
 
 import pytest
 
-from logica import calcular_indicador, cercar_per_id, validar_data
+from logica import calcular_indicador, cercar_per_id, resum, validar_data
 from models import ErrorTasques, Tasca
 
 MISSATGE = "Error: format de data invàlid (YYYY-MM-DD)."
@@ -124,3 +124,68 @@ def test_rf_14_el_canvi_de_dia_canvia_l_indicador():
 
     assert calcular_indicador(tasca, date(2026, 11, 23)) == "URGENT"
     assert calcular_indicador(tasca, date(2026, 11, 24)) == "CADUCADA"
+
+
+def test_gs_18_resum_d_un_registre_amb_tasques_de_tots_els_tipus():
+    """GS-18 (RF-15): recomptes del registre d'exemple de l'escenari."""
+    tasques = [
+        Tasca(1, "Tasca A", "RS", "pendent"),
+        Tasca(2, "Tasca B", "RS", "pendent", "2026-11-22"),
+        Tasca(3, "Tasca C", "SO", "pendent", "2026-11-25"),
+        Tasca(4, "Tasca D", "SO", "pendent", "2026-12-31"),
+        Tasca(5, "Tasca E", "RS", "completada", "2026-11-01"),
+    ]
+
+    assert resum(tasques, AVUI) == {
+        "Total": 5,
+        "Pendents": 4,
+        "Completades": 1,
+        "Caducades": 1,
+        "Urgents": 1,
+    }
+
+
+def test_gs_19_resum_d_un_registre_buit():
+    """GS-19 (RF-16): sense tasques, tots els recomptes són 0."""
+    assert resum([], AVUI) == {
+        "Total": 0,
+        "Pendents": 0,
+        "Completades": 0,
+        "Caducades": 0,
+        "Urgents": 0,
+    }
+
+
+def test_rf_15_ordre_de_presentacio_del_resum():
+    """RF-15: l'ordre és Total, Pendents, Completades, Caducades, Urgents."""
+    assert list(resum([], AVUI)) == [
+        "Total", "Pendents", "Completades", "Caducades", "Urgents",
+    ]
+
+
+def test_rf_15_les_completades_no_compten_com_a_caducades_ni_urgents():
+    """RF-15: només les pendents poden ser caducades o urgents."""
+    tasques = [
+        Tasca(1, "A", "RS", "completada", "2026-01-01"),
+        Tasca(2, "B", "RS", "completada", "2026-11-24"),
+    ]
+
+    resultat = resum(tasques, AVUI)
+
+    assert resultat["Completades"] == 2
+    assert resultat["Caducades"] == 0
+    assert resultat["Urgents"] == 0
+
+
+def test_rf_15_total_es_pendents_mes_completades():
+    """RF-15: Total = Pendents + Completades i cap tasca es compta dos cops."""
+    tasques = [
+        Tasca(1, "A", "RS", "pendent", "2026-11-01"),
+        Tasca(2, "B", "RS", "pendent", "2026-11-23"),
+        Tasca(3, "C", "RS", "completada"),
+    ]
+
+    resultat = resum(tasques, AVUI)
+
+    assert resultat["Total"] == resultat["Pendents"] + resultat["Completades"]
+    assert resultat["Caducades"] + resultat["Urgents"] <= resultat["Pendents"]

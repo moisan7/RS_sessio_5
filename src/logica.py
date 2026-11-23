@@ -3,7 +3,7 @@
 import re
 from datetime import date
 
-from models import ESTAT_PENDENT, ErrorTasques
+from models import ESTAT_COMPLETADA, ESTAT_PENDENT, ErrorTasques
 
 MISSATGE_DATA_INVALIDA = "Error: format de data invàlid (YYYY-MM-DD)."
 _PATRO_DATA = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
@@ -54,3 +54,20 @@ def calcular_indicador(tasca, avui):
     if dies_restants < DIES_URGENT:
         return INDICADOR_URGENT
     return None
+
+
+def resum(tasques, avui):
+    """Retorna el recompte de tasques del registre (RF-15, RF-16).
+
+    El diccionari conserva l'ordre de presentació: Total, Pendents,
+    Completades, Caducades i Urgents. Les caducades i les urgents són
+    sempre tasques pendents (vegeu `calcular_indicador`).
+    """
+    indicadors = [calcular_indicador(tasca, avui) for tasca in tasques]
+    return {
+        "Total": len(tasques),
+        "Pendents": sum(1 for t in tasques if t.estat == ESTAT_PENDENT),
+        "Completades": sum(1 for t in tasques if t.estat == ESTAT_COMPLETADA),
+        "Caducades": indicadors.count(INDICADOR_CADUCADA),
+        "Urgents": indicadors.count(INDICADOR_URGENT),
+    }
