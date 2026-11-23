@@ -4,7 +4,7 @@
 | Versió | Sprint | Canvis incorporats | Estat |
 |--------|--------|--------------------|-------|
 | v1.0 | Inicial | US-01, US-02; RF-01..RF-04; GS-01..GS-03 | completada |
-| v2.0 | Sprint 2 | Afegits US-03..US-06; RF-05..RF-14 (data límit, edició, completat, indicadors); RNF-01..RNF-05; GS-04..GS-17; camp `data_limit` i estat `completada` al model; glossari i matriu de traçabilitat. Els requisits i escenaris de la v1.0 no canvien. | en curs |
+| v2.0 | Sprint 2 | Afegits US-03..US-06; RF-05..RF-14 (data límit, edició, completat, indicadors); RNF-01..RNF-05; GS-04..GS-17; camp `data_limit` i estat `completada` al model; glossari i matriu de traçabilitat. Els requisits i escenaris de la v1.0 no canvien. | completada |
 
 ## 1. Visió General
 Tasks_app és una eina CLI lleugera per ajudar als estudiants a gestionar les seves tasques acadèmiques diàries.
