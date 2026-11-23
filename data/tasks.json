@@ -1,1 +1,64 @@
-[]
+[
+  {
+    "id": 1,
+    "titol": "Memòria pràctica 1",
+    "assignatura": "RS",
+    "estat": "pendent",
+    "data_limit": "2026-11-20"
+  },
+  {
+    "id": 2,
+    "titol": "Informe de laboratori",
+    "assignatura": "SO",
+    "estat": "pendent",
+    "data_limit": "2026-11-24"
+  },
+  {
+    "id": 3,
+    "titol": "Estudiar tema 2",
+    "assignatura": "RS",
+    "estat": "pendent",
+    "data_limit": "2026-11-27"
+  },
+  {
+    "id": 4,
+    "titol": "Entrega projecte final",
+    "assignatura": "BD",
+    "estat": "pendent",
+    "data_limit": "2026-12-15"
+  },
+  {
+    "id": 5,
+    "titol": "Examen parcial",
+    "assignatura": "SO",
+    "estat": "pendent",
+    "data_limit": "2026-12-10"
+  },
+  {
+    "id": 6,
+    "titol": "Lectura capítol 4",
+    "assignatura": "XC",
+    "estat": "pendent"
+  },
+  {
+    "id": 7,
+    "titol": "Pràctica 2",
+    "assignatura": "RS",
+    "estat": "completada",
+    "data_limit": "2026-11-10"
+  },
+  {
+    "id": 8,
+    "titol": "Revisar apunts",
+    "assignatura": "BD",
+    "estat": "pendent",
+    "data_limit": "2026-11-30"
+  },
+  {
+    "id": 9,
+    "titol": "Quiz de repàs",
+    "assignatura": "SO",
+    "estat": "completada",
+    "data_limit": "2026-11-18"
+  }
+]
