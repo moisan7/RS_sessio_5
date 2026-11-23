@@ -236,3 +236,61 @@ def test_rf_07_edit_amb_estat_desconegut_es_rebutja(
 
     assert resultat.returncode != 0
     assert fitxer_dades.read_bytes() == abans
+
+
+def test_gs_08_complete_amb_identificador_inexistent(
+    executar, fitxer_dades, sembrar_tasques
+):
+    """GS-08 (RF-08, RNF-03): complete d'un ID inexistent no canvia res."""
+    sembrar_tasques([_tasca()])
+    abans = fitxer_dades.read_bytes()
+
+    resultat = executar("complete", "--id", "99")
+
+    assert resultat.returncode == 1
+    assert resultat.stdout == ""
+    assert "Error: no existeix cap tasca amb ID 99." in resultat.stderr
+    assert fitxer_dades.read_bytes() == abans
+
+
+def test_gs_10_completar_una_tasca_pendent(
+    executar, fitxer_dades, sembrar_tasques
+):
+    """GS-10 (RF-10): la tasca passa a l'estat `completada`."""
+    sembrar_tasques([_tasca(), _tasca(2, "Examen", "SO")])
+
+    resultat = executar("complete", "--id", "1")
+
+    assert resultat.returncode == 0
+    assert "Tasca [ID: 1] marcada com a completada" in resultat.stdout
+    assert _llegir(fitxer_dades) == [
+        {**_tasca(), "estat": "completada"},
+        _tasca(2, "Examen", "SO"),
+    ]
+
+
+def test_gs_11_completar_una_tasca_ja_completada(
+    executar, fitxer_dades, sembrar_tasques
+):
+    """GS-11 (RF-11): es informa i el fitxer no canvia."""
+    sembrar_tasques([{**_tasca(), "estat": "completada"}])
+    abans = fitxer_dades.read_bytes()
+
+    resultat = executar("complete", "--id", "1")
+
+    assert resultat.returncode == 0
+    assert "La tasca [ID: 1] ja estava completada." in resultat.stdout
+    assert fitxer_dades.read_bytes() == abans
+
+
+def test_rf_10_complete_conserva_la_data_limit(
+    executar, fitxer_dades, sembrar_tasques
+):
+    """RF-10: completar no esborra els altres atributs de la tasca."""
+    sembrar_tasques([_tasca(data_limit="2026-12-15")])
+
+    executar("complete", "--id", "1")
+
+    assert _llegir(fitxer_dades) == [
+        {**_tasca(), "estat": "completada", "data_limit": "2026-12-15"}
+    ]

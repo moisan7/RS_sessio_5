@@ -40,6 +40,13 @@ def crear_parser():
         help="nou estat",
     )
 
+    parser_complete = subparsers.add_parser(
+        "complete", help="marca una tasca com a completada"
+    )
+    parser_complete.add_argument(
+        "--id", type=int, required=True, help="ID de la tasca a completar"
+    )
+
     subparsers.add_parser("list", help="mostra les tasques registrades")
     return parser
 
@@ -85,6 +92,18 @@ def comandament_edit(args):
     print(f"Tasca [ID: {tasca.id}] modificada amb èxit")
 
 
+def comandament_complete(args):
+    """Marca una tasca com a completada (RF-10, RF-11, RF-08)."""
+    tasques = carregar_tasques()
+    tasca = cercar_per_id(tasques, args.id)
+    if tasca.estat == ESTAT_COMPLETADA:
+        print(f"La tasca [ID: {tasca.id}] ja estava completada.")
+        return
+    tasca.estat = ESTAT_COMPLETADA
+    desar_tasques(tasques)
+    print(f"Tasca [ID: {tasca.id}] marcada com a completada")
+
+
 def comandament_list(args):
     """Mostra totes les tasques registrades (RF-04)."""
     tasques = carregar_tasques()
@@ -101,6 +120,7 @@ def comandament_list(args):
 COMANDAMENTS = {
     "add": comandament_add,
     "edit": comandament_edit,
+    "complete": comandament_complete,
     "list": comandament_list,
 }
 
