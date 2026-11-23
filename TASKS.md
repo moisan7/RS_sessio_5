@@ -46,6 +46,6 @@ Objectiu: Permetre veure un resum del registre i filtrar el llistat per assignat
 - [x] Tasca 3.3: Implementar el comandament `summary`, amb tests. — Req: RF-15, RF-16, GS-18, GS-19 — Depèn de: 3.2
 - [x] Tasca 3.4: Implementar `filtrar_per_assignatura` a `src/logica.py`, amb tests unitaris. — Req: RF-17 — Depèn de: 3.1
 - [x] Tasca 3.5: Implementar `filtrar_per_paraula` i la combinació de filtres `filtrar_tasques` a `src/logica.py`, amb tests unitaris. — Req: RF-18, RF-19 — Depèn de: 3.4
-- [ ] Tasca 3.6: Afegir les opcions `--subject` i `--keyword` al comandament `list` i els missatges de resultat buit, amb tests. — Req: RF-17, RF-18, RF-19, RF-20, GS-20, GS-21, GS-22, GS-23, GS-24, GS-25 — Depèn de: 3.5
+- [x] Tasca 3.6: Afegir les opcions `--subject` i `--keyword` al comandament `list` i els missatges de resultat buit, amb tests. — Req: RF-17, RF-18, RF-19, RF-20, GS-20, GS-21, GS-22, GS-23, GS-24, GS-25 — Depèn de: 3.5
 - [ ] Tasca 3.7: Completar i revisar els tests d'integració dels escenaris GS-18..GS-25 i executar la regressió (`python3 -m pytest test`). — Req: GS-01..GS-25 — Depèn de: 3.3, 3.6
 - [ ] Tasca 3.8: Preparar el lliurament: `data/tasks.json` amb dades d'exemple, revisió dels fitxers finals i de `repositori.txt`. — Req: Lliurament de l'enunciat — Depèn de: 3.7

@@ -4,7 +4,13 @@ import argparse
 import sys
 from datetime import date
 
-from logica import calcular_indicador, cercar_per_id, resum, validar_data
+from logica import (
+    calcular_indicador,
+    cercar_per_id,
+    filtrar_tasques,
+    resum,
+    validar_data,
+)
 from models import ESTAT_COMPLETADA, ESTAT_PENDENT, ErrorTasques, Tasca
 from persistencia import carregar_tasques, desar_tasques
 
@@ -48,7 +54,16 @@ def crear_parser():
         "--id", type=int, required=True, help="ID de la tasca a completar"
     )
 
-    subparsers.add_parser("list", help="mostra les tasques registrades")
+    parser_list = subparsers.add_parser(
+        "list", help="mostra les tasques registrades"
+    )
+    parser_list.add_argument(
+        "--subject", help="mostra només les tasques d'aquesta assignatura"
+    )
+    parser_list.add_argument(
+        "--keyword",
+        help="mostra només les tasques amb aquesta paraula al títol",
+    )
     subparsers.add_parser("summary", help="mostra un resum del registre")
     return parser
 
@@ -107,13 +122,17 @@ def comandament_complete(args):
 
 
 def comandament_list(args):
-    """Mostra les tasques registrades (RF-04, RF-12, RF-13, RF-14)."""
+    """Mostra les tasques registrades (RF-04, RF-12..RF-14, RF-17..RF-20)."""
     tasques = carregar_tasques()
     if not tasques:
         print("Registre de tasques buit.")
         return
+    seleccionades = filtrar_tasques(tasques, args.subject, args.keyword)
+    if not seleccionades:
+        print("Cap tasca coincideix amb els filtres.")
+        return
     avui = date.today()
-    for tasca in tasques:
+    for tasca in seleccionades:
         print(formatar_tasca(tasca, avui))
 
 

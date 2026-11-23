@@ -461,3 +461,136 @@ def test_rf_15_el_resum_reflecteix_els_canvis_fets_amb_complete(
         "Pendents: 1",
         "Completades: 1",
     ]
+
+
+def test_gs_20_llistat_de_les_tasques_d_una_assignatura(
+    executar, sembrar_tasques
+):
+    """GS-20 (RF-17): `--subject RS` ignora majúscules i omet les altres."""
+    sembrar_tasques(
+        [
+            _tasca(1, "Pràctica 1", "RS"),
+            _tasca(2, "Examen parcial", "SO"),
+            _tasca(3, "Informe de lab", "rs"),
+        ]
+    )
+
+    resultat = executar("list", "--subject", "RS")
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        "[1] Pràctica 1 (RS) - estat: pendent",
+        "[3] Informe de lab (rs) - estat: pendent",
+    ]
+
+
+def test_gs_21_llistat_amb_una_paraula_clau_en_el_titol(
+    executar, sembrar_tasques
+):
+    """GS-21 (RF-18): `--keyword PRÀCTICA` troba el títol sense majúscules."""
+    sembrar_tasques(
+        [
+            _tasca(1, "Pràctica 1", "RS"),
+            _tasca(2, "Examen parcial", "SO"),
+            _tasca(3, "Memòria pràctica 2", "RS"),
+        ]
+    )
+
+    resultat = executar("list", "--keyword", "PRÀCTICA")
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        "[1] Pràctica 1 (RS) - estat: pendent",
+        "[3] Memòria pràctica 2 (RS) - estat: pendent",
+    ]
+
+
+def test_gs_22_llistat_amb_assignatura_i_paraula_combinades(
+    executar, sembrar_tasques
+):
+    """GS-22 (RF-19): només les tasques que compleixen les dues condicions."""
+    sembrar_tasques(
+        [
+            _tasca(1, "Pràctica 1", "RS"),
+            _tasca(2, "Pràctica 1", "SO"),
+            _tasca(3, "Examen", "RS"),
+        ]
+    )
+
+    resultat = executar(
+        "list", "--subject", "RS", "--keyword", "pràctica"
+    )
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        "[1] Pràctica 1 (RS) - estat: pendent"
+    ]
+
+
+@pytest.mark.parametrize(
+    "filtres",
+    [
+        ["--subject", "MAT"],
+        ["--keyword", "xyz"],
+        ["--subject", "RS", "--keyword", "examen"],
+    ],
+    ids=["assignatura", "paraula", "combinats"],
+)
+def test_gs_23_cap_tasca_compleix_els_filtres(
+    executar, sembrar_tasques, filtres
+):
+    """GS-23 (RF-20): missatge específic i codi de sortida 0."""
+    sembrar_tasques([_tasca(1, "Pràctica 1", "RS")])
+
+    resultat = executar("list", *filtres)
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        "Cap tasca coincideix amb els filtres."
+    ]
+
+
+def test_gs_24_el_llistat_filtrat_conserva_data_limit_i_indicadors(
+    executar, sembrar_tasques
+):
+    """GS-24 (RF-17, RF-12, RF-13): mateix format que el llistat complet."""
+    limit = _data_relativa(-1)
+    sembrar_tasques(
+        [
+            _tasca(1, "Examen parcial", "SO", data_limit=limit),
+            _tasca(2, "Pràctica 1", "RS"),
+        ]
+    )
+
+    resultat = executar("list", "--subject", "SO")
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == [
+        f"[1] Examen parcial (SO) - estat: pendent - límit: {limit}"
+        " [CADUCADA]"
+    ]
+
+
+@pytest.mark.parametrize(
+    "filtres",
+    [["--subject", "RS"], ["--keyword", "pràctica"]],
+    ids=["assignatura", "paraula"],
+)
+def test_gs_25_llistat_filtrat_d_un_registre_buit(executar, filtres):
+    """GS-25 (RF-04, RF-20): registre buit, missatge del registre buit."""
+    resultat = executar("list", *filtres)
+
+    assert resultat.returncode == 0
+    assert resultat.stdout.splitlines() == ["Registre de tasques buit."]
+
+
+def test_rf_17_el_llistat_filtrat_no_modifica_el_fitxer(
+    executar, fitxer_dades, sembrar_tasques
+):
+    """RF-17: filtrar només llegeix `data/tasks.json`."""
+    sembrar_tasques([_tasca(1), _tasca(2, "Examen", "SO")])
+    abans = fitxer_dades.read_bytes()
+
+    executar("list", "--subject", "SO")
+
+    assert fitxer_dades.read_bytes() == abans
