@@ -81,3 +81,26 @@ def filtrar_per_assignatura(tasques, assignatura):
     """
     cercada = assignatura.casefold()
     return [t for t in tasques if t.assignatura.casefold() == cercada]
+
+
+def filtrar_per_paraula(tasques, paraula):
+    """Retorna les tasques que contenen la paraula al títol (RF-18).
+
+    La cerca és per subcadena, en qualsevol posició del títol, sense
+    distingir majúscules de minúscules; els accents són significatius.
+    """
+    cercada = paraula.casefold()
+    return [t for t in tasques if cercada in t.titol.casefold()]
+
+
+def filtrar_tasques(tasques, assignatura=None, paraula=None):
+    """Aplica els filtres indicats; si n'hi ha dos, han de complir-se tots
+    dos (RF-17, RF-18, RF-19).
+
+    Un filtre amb valor `None` no s'aplica.
+    """
+    if assignatura is not None:
+        tasques = filtrar_per_assignatura(tasques, assignatura)
+    if paraula is not None:
+        tasques = filtrar_per_paraula(tasques, paraula)
+    return list(tasques)

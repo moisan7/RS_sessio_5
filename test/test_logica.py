@@ -1,4 +1,4 @@
-"""Tests unitaris de la lògica de negoci (RF-06, RF-08, RF-13..RF-17)."""
+"""Tests unitaris de la lògica de negoci (RF-06, RF-08, RF-13..RF-19)."""
 
 from datetime import date
 
@@ -8,6 +8,8 @@ from logica import (
     calcular_indicador,
     cercar_per_id,
     filtrar_per_assignatura,
+    filtrar_per_paraula,
+    filtrar_tasques,
     resum,
     validar_data,
 )
@@ -247,3 +249,75 @@ def test_rf_17_el_filtre_no_modifica_la_llista_original():
     filtrar_per_assignatura(TASQUES_FILTRE, "RS")
 
     assert TASQUES_FILTRE == original
+
+
+TASQUES_PARAULA = [
+    Tasca(1, "Pràctica 1", "RS"),
+    Tasca(2, "Examen parcial", "SO"),
+    Tasca(3, "Memòria pràctica 2", "RS"),
+]
+
+
+def test_gs_21_filtra_per_paraula_sense_distingir_majuscules():
+    """GS-21 (RF-18): `PRÀCTICA` troba el títol en qualsevol posició."""
+    resultat = filtrar_per_paraula(TASQUES_PARAULA, "PRÀCTICA")
+
+    assert [t.id for t in resultat] == [1, 3]
+
+
+def test_rf_18_la_cerca_es_per_subcadena():
+    """RF-18: una part de paraula també coincideix."""
+    assert [t.id for t in filtrar_per_paraula(TASQUES_PARAULA, "exam")] == [2]
+    assert [t.id for t in filtrar_per_paraula(TASQUES_PARAULA, "arc")] == [2]
+    assert [t.id for t in filtrar_per_paraula(TASQUES_PARAULA, "r")] == [
+        1, 2, 3
+    ]
+
+
+def test_rf_18_els_accents_son_significatius():
+    """RF-18: `practica` no troba `Pràctica`."""
+    assert filtrar_per_paraula(TASQUES_PARAULA, "practica") == []
+
+
+def test_rf_18_no_cerca_a_l_assignatura():
+    """RF-18: la paraula només s'aplica al títol."""
+    assert filtrar_per_paraula(TASQUES_PARAULA, "SO") == []
+
+
+def test_rf_18_sense_coincidencies_o_llista_buida_retorna_buit():
+    """RF-18: resultat buit quan res coincideix."""
+    assert filtrar_per_paraula(TASQUES_PARAULA, "xyz") == []
+    assert filtrar_per_paraula([], "pràctica") == []
+
+
+def test_gs_22_combina_assignatura_i_paraula_amb_and():
+    """GS-22 (RF-19): només les tasques que compleixen les dues."""
+    tasques = [
+        Tasca(1, "Pràctica 1", "RS"),
+        Tasca(2, "Pràctica 1", "SO"),
+        Tasca(3, "Examen", "RS"),
+    ]
+
+    resultat = filtrar_tasques(tasques, "RS", "pràctica")
+
+    assert [t.id for t in resultat] == [1]
+
+
+def test_rf_19_un_sol_filtre_equival_al_filtre_individual():
+    """RF-19: un filtre `None` no s'aplica."""
+    assert filtrar_tasques(TASQUES_PARAULA, assignatura="RS") == (
+        filtrar_per_assignatura(TASQUES_PARAULA, "RS")
+    )
+    assert filtrar_tasques(TASQUES_PARAULA, paraula="exam") == (
+        filtrar_per_paraula(TASQUES_PARAULA, "exam")
+    )
+
+
+def test_rf_19_sense_filtres_retorna_totes_les_tasques():
+    """RF-19: sense cap filtre el llistat és complet i en el mateix ordre."""
+    assert filtrar_tasques(TASQUES_PARAULA) == TASQUES_PARAULA
+
+
+def test_rf_19_cap_coincidencia_en_la_combinacio_retorna_buit():
+    """RF-19: l'assignatura existeix i la paraula també, però no juntes."""
+    assert filtrar_tasques(TASQUES_PARAULA, "SO", "pràctica") == []
