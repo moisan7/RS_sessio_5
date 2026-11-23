@@ -24,7 +24,7 @@ Objectiu: Permetre registrar una data límit, corregir tasques, completar-les i 
 
 - [x] Tasca 2.1: Actualitzar `SPECIFICATIONS.md` a la v2.0 (US-03..US-06, RF-05..RF-14, RNF, GS-04..GS-17, glossari, traçabilitat). — Req: tots els de la v2.0 — Depèn de: 1.6
 - [x] Tasca 2.2: Actualitzar `AGENTS.md` (comandes amb `.venv`, límits "Mai…", convenció de commits i de noms de test). — Req: RNF-02 — Depèn de: 2.1
-- [ ] Tasca 2.3: Afegir `data_limit` (opcional) al model `Tasca` mantenint la compatibilitat amb el JSON de la v1.0, amb test unitari. — Req: RNF-01, GS-16 — Depèn de: 2.1
+- [x] Tasca 2.3: Afegir `data_limit` (opcional) al model `Tasca` mantenint la compatibilitat amb el JSON de la v1.0, amb test unitari. — Req: RNF-01, GS-16 — Depèn de: 2.1
 - [ ] Tasca 2.4: Gestió d'errors: excepció `ErrorTasques`, sortida a `stderr` amb codi 1 a `main()` i JSON invàlid sense sobreescriure, amb tests. — Req: RNF-03, RNF-05, GS-17 — Depèn de: 2.3
 - [ ] Tasca 2.5: Implementar `validar_data` a `src/logica.py`, amb tests unitaris. — Req: RF-06 — Depèn de: 2.4
 - [ ] Tasca 2.6: Afegir l'opció `--due` al comandament `add`, amb tests. — Req: RF-05, RF-06, GS-04, GS-05 — Depèn de: 2.5
