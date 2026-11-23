@@ -7,6 +7,13 @@ ESTAT_PENDENT = "pendent"
 ESTAT_COMPLETADA = "completada"
 
 
+class ErrorTasques(Exception):
+    """Error d'usuari o de dades de Tasks_app (RNF-03).
+
+    El missatge és el text exacte que es mostra per la sortida d'errors.
+    """
+
+
 @dataclass
 class Tasca:
     """Tasca acadèmica d'un estudiant.

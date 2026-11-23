@@ -55,3 +55,25 @@ def test_gs_03_llistat_amb_registres(executar, sembrar_tasques):
         "[1] Pràctica 1 (RS) - estat: pendent",
         "[2] Examen parcial (SO) - estat: pendent",
     ]
+
+
+def test_gs_17_fitxer_de_dades_amb_json_invalid(
+    executar, fitxer_dades
+):
+    """GS-17 (RNF-05, RNF-03): JSON invàlid, error i fitxer intacte."""
+    fitxer_dades.parent.mkdir(parents=True, exist_ok=True)
+    fitxer_dades.write_text("{no es json", encoding="utf-8")
+
+    for comandament in (
+        ["list"],
+        ["add", "--title", "X", "--subject", "RS"],
+    ):
+        resultat = executar(*comandament)
+
+        assert resultat.returncode == 1
+        assert resultat.stdout == ""
+        assert (
+            "Error: el fitxer data/tasks.json no conté JSON vàlid."
+            in resultat.stderr
+        )
+        assert fitxer_dades.read_text(encoding="utf-8") == "{no es json"

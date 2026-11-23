@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from models import Tasca
+from models import ErrorTasques, Tasca
 from persistencia import carregar_tasques, desar_tasques
 
 
@@ -55,10 +55,15 @@ COMANDAMENTS = {
 
 def main(argv=None):
     """Punt d'entrada de l'aplicació."""
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8")
+    for sortida in (sys.stdout, sys.stderr):
+        if hasattr(sortida, "reconfigure"):
+            sortida.reconfigure(encoding="utf-8")
     args = crear_parser().parse_args(argv)
-    COMANDAMENTS[args.comandament](args)
+    try:
+        COMANDAMENTS[args.comandament](args)
+    except ErrorTasques as error:
+        print(error, file=sys.stderr)
+        return 1
     return 0
 
 
