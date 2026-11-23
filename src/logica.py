@@ -71,3 +71,13 @@ def resum(tasques, avui):
         "Caducades": indicadors.count(INDICADOR_CADUCADA),
         "Urgents": indicadors.count(INDICADOR_URGENT),
     }
+
+
+def filtrar_per_assignatura(tasques, assignatura):
+    """Retorna les tasques de l'assignatura indicada (RF-17).
+
+    La comparació és exacta però sense distingir majúscules de minúscules;
+    els accents són significatius. Es conserva l'ordre original.
+    """
+    cercada = assignatura.casefold()
+    return [t for t in tasques if t.assignatura.casefold() == cercada]

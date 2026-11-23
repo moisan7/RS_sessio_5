@@ -1,10 +1,16 @@
-"""Tests unitaris de la lògica de negoci (RF-06, RF-08, RF-13..RF-16)."""
+"""Tests unitaris de la lògica de negoci (RF-06, RF-08, RF-13..RF-17)."""
 
 from datetime import date
 
 import pytest
 
-from logica import calcular_indicador, cercar_per_id, resum, validar_data
+from logica import (
+    calcular_indicador,
+    cercar_per_id,
+    filtrar_per_assignatura,
+    resum,
+    validar_data,
+)
 from models import ErrorTasques, Tasca
 
 MISSATGE = "Error: format de data invàlid (YYYY-MM-DD)."
@@ -189,3 +195,55 @@ def test_rf_15_total_es_pendents_mes_completades():
 
     assert resultat["Total"] == resultat["Pendents"] + resultat["Completades"]
     assert resultat["Caducades"] + resultat["Urgents"] <= resultat["Pendents"]
+
+
+TASQUES_FILTRE = [
+    Tasca(1, "Pràctica 1", "RS"),
+    Tasca(2, "Examen parcial", "SO"),
+    Tasca(3, "Informe de lab", "rs"),
+    Tasca(4, "Lectura", "RSX"),
+]
+
+
+def test_gs_20_filtra_per_assignatura_sense_distingir_majuscules():
+    """GS-20 (RF-17): `RS` coincideix amb `rs` i conserva l'ordre."""
+    resultat = filtrar_per_assignatura(TASQUES_FILTRE, "RS")
+
+    assert [t.id for t in resultat] == [1, 3]
+
+
+@pytest.mark.parametrize("assignatura", ["rs", "Rs", "rS"])
+def test_rf_17_la_cerca_ignora_les_majuscules_de_la_consulta(assignatura):
+    """RF-17: la consulta en qualsevol combinació de majúscules."""
+    assert [t.id for t in filtrar_per_assignatura(
+        TASQUES_FILTRE, assignatura)] == [1, 3]
+
+
+def test_rf_17_la_coincidencia_es_exacta_i_no_parcial():
+    """RF-17: `RS` no coincideix amb `RSX` ni amb una part del nom."""
+    assert filtrar_per_assignatura(TASQUES_FILTRE, "R") == []
+    assert [t.id for t in filtrar_per_assignatura(
+        TASQUES_FILTRE, "RSX")] == [4]
+
+
+def test_rf_17_els_accents_son_significatius():
+    """RF-17: `Matemàtiques` no coincideix amb `Matematiques`."""
+    tasques = [Tasca(1, "Deures", "Matemàtiques")]
+
+    assert filtrar_per_assignatura(tasques, "matemàtiques") == tasques
+    assert filtrar_per_assignatura(tasques, "Matematiques") == []
+
+
+def test_rf_17_assignatura_inexistent_o_llista_buida_retorna_buit():
+    """RF-17: sense coincidències el resultat és una llista buida."""
+    assert filtrar_per_assignatura(TASQUES_FILTRE, "MAT") == []
+    assert filtrar_per_assignatura([], "RS") == []
+
+
+def test_rf_17_el_filtre_no_modifica_la_llista_original():
+    """RF-17: filtrar retorna una llista nova."""
+    original = list(TASQUES_FILTRE)
+
+    filtrar_per_assignatura(TASQUES_FILTRE, "RS")
+
+    assert TASQUES_FILTRE == original
