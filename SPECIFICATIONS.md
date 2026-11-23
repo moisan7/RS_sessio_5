@@ -61,7 +61,7 @@ stateDiagram-v2
 - RNF-02 [v2.0]: El sistema tasks_app ha d'utilitzar únicament la biblioteca estàndard de Python 3.11 (`pytest` només per als tests).
 - RNF-03 [v2.0]: Si es produeix un error, el sistema tasks_app ha d'escriure el missatge d'error per la sortida d'errors, ha de finalitzar amb el codi de sortida 1 i no ha de modificar `data/tasks.json`.
 - RNF-04 [v2.0]: El sistema tasks_app ha de desar `data/tasks.json` en codificació UTF-8 i les dates en format ISO 8601 (YYYY-MM-DD).
-- RNF-05 [v2.0]: Si el fitxer `data/tasks.json` no conté JSON vàlid, el sistema tasks_app ha de mostrar el missatge `Error: el fitxer data/tasks.json no conté JSON vàlid.` sense sobreescriure'l.
+- RNF-05 [v2.0]: Si el fitxer `data/tasks.json` no conté JSON vàlid o el seu contingut no és una llista de tasques amb els camps `id`, `titol` i `assignatura`, el sistema tasks_app ha de mostrar el missatge `Error: el fitxer data/tasks.json no conté JSON vàlid.` sense sobreescriure'l.
 
 ## 5. Criteris d'acceptació i proves (Gherkin scenarios)
 - GS-01 [v1.0]: Creació correcta d'una tasca (verifica RF-01, RF-03)
@@ -186,12 +186,17 @@ stateDiagram-v2
     "[1] Pràctica 1 (RS) - estat: pendent"
   i el codi de sortida és 0.
 
-- GS-17 [v2.0]: Fitxer de dades amb JSON invàlid (verifica RNF-05, RNF-03)
-  Atès que el fitxer `data/tasks.json` conté el text `{no es json`
+- GS-17 [v2.0]: Fitxer de dades amb contingut invàlid (verifica RNF-05, RNF-03)
+  Atès que el fitxer `data/tasks.json` conté el text `<contingut>`
   quan l'estudiant executa `python src/tasks_app.py list`
   aleshores el sistema mostra per la sortida d'errors `Error: el fitxer data/tasks.json no conté JSON vàlid.`
   i el codi de sortida és 1
-  i el contingut de `data/tasks.json` continua sent `{no es json`.
+  i el contingut de `data/tasks.json` continua sent `<contingut>`.
+    Exemples:
+    | contingut     | motiu                                   |
+    | {no es json   | JSON mal format                         |
+    | {"id": 1}     | JSON vàlid però no és una llista        |
+    | [{"id": 1}]   | llista amb una tasca sense titol/assignatura |
 
 ## 6. Glossari
 - **Tasca pendent**: tasca amb estat `pendent`.

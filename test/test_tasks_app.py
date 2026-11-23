@@ -2,6 +2,8 @@
 
 import json
 
+import pytest
+
 
 def test_gs_01_creacio_correcta_d_una_tasca(executar, fitxer_dades):
     """GS-01 (RF-01, RF-03): afegir una tasca a una base de dades buida."""
@@ -57,12 +59,17 @@ def test_gs_03_llistat_amb_registres(executar, sembrar_tasques):
     ]
 
 
-def test_gs_17_fitxer_de_dades_amb_json_invalid(
-    executar, fitxer_dades
+@pytest.mark.parametrize(
+    "contingut",
+    ["{no es json", '{"id": 1}', '[{"id": 1}]'],
+    ids=["json_mal_format", "no_es_llista", "falten_camps"],
+)
+def test_gs_17_fitxer_de_dades_amb_contingut_invalid(
+    executar, fitxer_dades, contingut
 ):
-    """GS-17 (RNF-05, RNF-03): JSON invàlid, error i fitxer intacte."""
+    """GS-17 (RNF-05, RNF-03): contingut invàlid, error i fitxer intacte."""
     fitxer_dades.parent.mkdir(parents=True, exist_ok=True)
-    fitxer_dades.write_text("{no es json", encoding="utf-8")
+    fitxer_dades.write_text(contingut, encoding="utf-8")
 
     for comandament in (
         ["list"],
@@ -76,4 +83,4 @@ def test_gs_17_fitxer_de_dades_amb_json_invalid(
             "Error: el fitxer data/tasks.json no conté JSON vàlid."
             in resultat.stderr
         )
-        assert fitxer_dades.read_text(encoding="utf-8") == "{no es json"
+        assert fitxer_dades.read_text(encoding="utf-8") == contingut
