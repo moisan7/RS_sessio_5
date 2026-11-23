@@ -3,7 +3,7 @@
 ## 0. Historial de versions
 | Versió | Sprint | Canvis incorporats | Estat |
 |--------|--------|--------------------|-------|
-| v1.0 | Inicial | US-01, US-02; RF-01..RF-04; GS-01..GS-03 | en curs |
+| v1.0 | Inicial | US-01, US-02; RF-01..RF-04; GS-01..GS-03 | completada |
 
 ## 1. Visió General
 Tasks_app és una eina CLI lleugera per ajudar als estudiants a gestionar les seves tasques acadèmiques diàries.
