@@ -1,11 +1,11 @@
-"""Tests unitaris de la lògica de negoci (RF-06)."""
+"""Tests unitaris de la lògica de negoci (RF-06, RF-08)."""
 
 from datetime import date
 
 import pytest
 
-from logica import validar_data
-from models import ErrorTasques
+from logica import cercar_per_id, validar_data
+from models import ErrorTasques, Tasca
 
 MISSATGE = "Error: format de data invàlid (YYYY-MM-DD)."
 
@@ -45,3 +45,29 @@ def test_rf_06_data_invalida_llanca_error(text):
         validar_data(text)
 
     assert str(excepcio.value) == MISSATGE
+
+
+def test_rf_08_cerca_una_tasca_existent_per_id():
+    """RF-08: es retorna la tasca que té l'ID indicat."""
+    tasques = [Tasca(1, "Pràctica 1", "RS"), Tasca(5, "Examen", "SO")]
+
+    assert cercar_per_id(tasques, 5) is tasques[1]
+
+
+@pytest.mark.parametrize("id_tasca", [99, 0, -1])
+def test_rf_08_id_inexistent_llanca_error(id_tasca):
+    """RF-08: un ID sense tasca provoca l'error amb l'ID demanat."""
+    tasques = [Tasca(1, "Pràctica 1", "RS")]
+
+    with pytest.raises(ErrorTasques) as excepcio:
+        cercar_per_id(tasques, id_tasca)
+
+    assert str(excepcio.value) == (
+        f"Error: no existeix cap tasca amb ID {id_tasca}."
+    )
+
+
+def test_rf_08_llista_buida_llanca_error():
+    """RF-08: en un registre buit cap ID existeix."""
+    with pytest.raises(ErrorTasques):
+        cercar_per_id([], 1)

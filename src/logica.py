@@ -22,3 +22,14 @@ def validar_data(text):
         return date.fromisoformat(text)
     except ValueError as error:
         raise ErrorTasques(MISSATGE_DATA_INVALIDA) from error
+
+
+def cercar_per_id(tasques, id_tasca):
+    """Retorna la tasca amb l'ID indicat (RF-08).
+
+    Llança `ErrorTasques` si no existeix cap tasca amb aquest ID.
+    """
+    for tasca in tasques:
+        if tasca.id == id_tasca:
+            return tasca
+    raise ErrorTasques(f"Error: no existeix cap tasca amb ID {id_tasca}.")
